@@ -157,19 +157,25 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for produto in produtos %}
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td class="text-end"></td>
-                        <td class="text-end highlight-cell">R$ </td>
+                        <td>{{ produto.id_produto }}</td>
+                        <td>{{ produto.nome_produto }}</td>
+                        <td class="text-end">{{ "%.2f"|format(produto.quantidade) }}</td>
+                        <td class="text-end highlight-cell">R$ {{ "%.2f"|format(produto.valor_produto   ) }}</td>
                         
                         <td class="text-center">
-                            <a href="editar-produto.html?id=" class="btn btn-sm btn-success me-2">Editar</a>
-                            <a href="index.html?acao=excluir&id=" 
+                            <a href="{{ url_for('editar_produto', id=produto.id_produto) }}" class="btn btn-sm btn-success me-2">Editar</a>
+                            <a href="{{ url_for('excluir_produto', id=produto.id_produto) }}" 
                                 onclick="return confirm('Tem certeza que deseja excluir este produto?');"
                                 class="btn btn-sm btn-danger">Excluir</a>
                         </td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Nenhum produto cadastrado.</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
