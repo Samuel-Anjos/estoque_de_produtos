@@ -106,11 +106,11 @@
 
     <div class="sidebar">
         <h4>D’Mousse</h4>
-        <a href="{{ url_for('main.home') }}" class="active">Dashboard</a>
-        <a href="{{ url_for('main.produtos') }}">Produtos</a>
-        <a href="{{ url_for('main.ingredientes') }}">Ingredientes</a>
-        <a href="{{ url_for('main.baixa') }}">Dar Baixar</a>
-        <a href="{{ url_for('main.venda') }}">Vendas</a>
+        <a href="{{ url_for('home') }}" class="active">Dashboard</a>
+        <a href="{{ url_for('produtos') }}">Produtos</a>
+        <a href="{{ url_for('ingredientes') }}">Ingredientes</a>
+        <a href="{{ url_for('baixa') }}">Dar Baixar</a>
+        <a href="{{ url_for('venda') }}">Vendas</a>
     </div>
 
     <div class="content">
@@ -139,7 +139,7 @@
 
         <div class="content-header">
             <h2>Catálogo de Produtos</h2>
-            <a href="{{ url_for('main.produtos') }}" class="btn btn-primary">
+            <a href="{{url_for('produtos')}}" class="btn btn-primary">
                 + Cadastrar Novo Produto
             </a>
         </div>
@@ -164,13 +164,10 @@
                         <td class="text-end highlight-cell">R$ </td>
                         
                         <td class="text-center">
-                            <!-- descomentas as duas fuções quando as rotas de edição e exclusão do banco estiverem feitas ou parcialmente feitas -->
-
-                            
-                            <!-- <a href="editar-produto.php?id=" class="btn btn-sm btn-success me-2">Editar</a> -->
-                            <!-- <a href="index.php?acao=excluir&id=" 
+                            <a href="editar-produto.html?id=" class="btn btn-sm btn-success me-2">Editar</a>
+                            <a href="index.html?acao=excluir&id=" 
                                 onclick="return confirm('Tem certeza que deseja excluir este produto?');"
-                                class="btn btn-sm btn-danger">Excluir</a> -->
+                                class="btn btn-sm btn-danger">Excluir</a>
                         </td>
                     </tr>
                 </tbody>
