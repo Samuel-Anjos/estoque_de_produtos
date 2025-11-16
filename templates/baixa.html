@@ -114,14 +114,16 @@
 
         
 
-        <form action="baixa.php" method="POST" class="stock-form">
+        <form action="{{ url_for('baixa') }}" method="POST" class="stock-form">
             <input type="hidden" name="acao" value="dar_baixa">
 
             <div class="form-group">
                 <label for="id_produto">Produto para Baixa:</label>
                 <select id="id_produto" name="id_produto" class="form-control" required>
                     <option value="">Selecione o Produto</option>
-                    
+                    {% for p in produtos %}
+                        <option value="{{ p.id_produto }}">{{ p.nome_produto }}</option>
+                    {% endfor %}
                 </select>
             </div>
             

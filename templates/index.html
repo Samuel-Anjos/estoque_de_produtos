@@ -120,17 +120,17 @@
         
         <div class="card-stat">
             <h3>Total de Produtos</h3>
-            <p class="stat-value text-primary"></p>
+            <p class="stat-value text-primary">{{ total_produtos }}</p>
         </div>
         
         <div class="card-stat">
             <h3>Vendas Realizadas (Registros)</h3>
-            <p class="stat-value text-info"></p>
+            <p class="stat-value text-info">{{ total_vendas }}</p>
         </div>
         
         <div class="card-stat">
             <h3>Receita Bruta Total</h3>
-            <p class="stat-value text-success">R$</p>
+            <p class="stat-value text-success">R$ {{ "%.2f"|format(receita_total) }}</p>
         </div>
         
         
@@ -158,7 +158,7 @@
                 </thead>
                 <tbody>
                     {% for produto in produtos %}
-                    <tr>
+                    <tr class="{% if produto.ativo == 0 %}inativo{% endif %}">
                         <td>{{ produto.id_produto }}</td>
                         <td>{{ produto.nome_produto }}</td>
                         <td class="text-end">{{ "%.2f"|format(produto.quantidade) }}</td>
@@ -166,10 +166,16 @@
                         
                         <td class="text-center">
                             <a href="{{ url_for('editar_produto', id=produto.id_produto) }}" class="btn btn-sm btn-success me-2">Editar</a>
-                            <a href="{{ url_for('excluir_produto', id=produto.id_produto) }}" 
-                                onclick="return confirm('Tem certeza que deseja excluir este produto?');"
-                                class="btn btn-sm btn-danger">Excluir</a>
+                            {% if produto.ativo == 1 %}
+                                <a href="{{ url_for('desativar_produto', id=produto.id_produto) }}" onclick="return confirm('Tem certeza que deseja desativar este produto?');" class="btn btn-sm btn-light me-2">Desativar</a>
+                            {% else %}
+                                <a href="{{ url_for('ativar_produto', id=produto.id_produto) }}" class="btn btn-sm btn-primary me-2">Ativar</a>
+                            {% endif %}
                         </td>
+                        <td>
+                            
+                        </td>
+                        
                     </tr>
                     {% else %}
                     <tr>

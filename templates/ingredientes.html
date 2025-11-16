@@ -219,6 +219,10 @@
             background-color: #bd2130;
         }
         
+        .desativado {
+            opacity: 0.45;
+            background-color: #f2f2f2;
+        }
 
     </style>
     </head>
@@ -229,17 +233,17 @@
             <div class="stats-cards">
                 <div class="card stat-card total-items">
                     <h3>Itens em Estoque</h3>
-                    <p class="stat-value"></p>
+                    <p class="stat-value">{{ total_itens }}</p>
                     <small>Total de ingredientes cadastrados</small>
                 </div>
                 <div class="card stat-card total-cost">
                     <h3>Custo Total do Estoque</h3>
-                    <p class="stat-value">R$ </p>
+                    <p class="stat-value">R$ {{ "%.2f"|format(total_custo) }}</p>
                     <small>Valor total investido nos itens</small>
                 </div>
                 <div class="card stat-card critical-stock">
                     <h3>Necessita Reposição</h3>
-                    <p class="stat-value"></p>
+                    <p class="stat-value">{{ itens_baixo_estoque }}</p>
                     <small>Itens abaixo do estoque mínimo (Simulado)</small>
                 </div>
             </div>
@@ -260,14 +264,36 @@
                             <th>Nome do Ingrediente</th>
                             <th class="text-center">Unidade</th>
                             <th class="text-right">Estoque Atual</th>
-                            <th class="text-right">Custo Unitário</th>
-                            <th class="text-right table-highlight">Custo Total</th>
+                            <th class="text-right">Custo Total</th>
+                            <th class="text-right table-highlight">Custo Unitário</th>
                             <th class="text-center">Ações</th>
                         </tr>
                     </thead>
+                    <tbody>
+                        {% for item in ingredientes %}
+                        <tr class="{% if item.ativo == 0 %}desativado{% endif %}">
+                            <td>{{ item.nome_ingrediente }}</td>
+                            <td class="text-center">{{ item.unidade_medida }}</td>
 
-                
+                            <td class="text-right">{{ item.estoque_atual }}</td>
 
+                            <td class="text-right">R$ {{ "%.2f"|format(item.estoque_atual * item.custo_unitario) }}</td>
+
+                            <td class="text-right table-highlight">
+                                R$ {{ "%.2f"|format(item.custo_unitario) }}
+                            </td>
+
+                            <td class="text-center">
+                                <a href="/editar_ingrediente/{{ item.id_producao }}">Editar</a>
+                                {% if item.ativo == 1 %}
+                                    <a href="/desativar_ingrediente/{{ item.id_producao }}" onclick="return confirm('Tem certeza que deseja desativar?')">Desativar</a>
+                                {% else %}
+                                    <a href="/ativar_ingrediente/{{ item.id_producao }}">Ativar</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
         </main>
     </div> 
 </body>
