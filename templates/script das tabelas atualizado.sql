@@ -126,3 +126,32 @@ COLLATE = utf8mb4_0900_ai_ci;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Mousse Chocolate', 'Mousses', 50, 8.0, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Mousse Morango', 'Mousses', 50, 8.0, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Mousse Maracujá', 'Mousses', 50, 8.0, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Mousse Limão', 'Mousses', 50, 8.0, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Pudim Leite Condensado', 'Sobremesas Geladas', 40, 5.5, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Pudim Chocolate', 'Sobremesas Geladas', 40, 5.5, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Pudim Coco', 'Sobremesas Geladas', 40, 5.5, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Pudim Caramelo', 'Sobremesas Geladas', 40, 5.5, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Bolo no Pote Chocolate', 'Bolos no pote', 30, 10.0, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Bolo no Pote Morango', 'Bolos no pote', 30, 10.0, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Bolo no Pote Doce de Leite', 'Bolos no pote', 30, 10.0, 1);
+INSERT INTO produto (nome_produto, categoria, quantidade, valor_produto, ativo) VALUES ('Bolo no Pote Brigadeiro', 'Bolos no pote', 30, 10.0, 1);
+
+
+INSERT INTO producao (id_producao, nome_ingrediente, unidade_medida, custo_unitario, data_cadastro, ativo, estoque_atual, estoque_minimo) VALUES
+(5, 'morango', 'KG', 15.00, '2025-11-16 19:29:02', 1, 4.00, 5),
+(6, 'açucar', 'KG', 4.00, '2025-11-16 19:29:43', 1, 5.00, 5),
+(7, 'Chocolate em pó', 'KG', 20.00, '2025-11-16 19:30:08', 1, 3.00, 5),
+(8, 'Leite condensado', 'UN', 7.00, '2025-11-16 19:30:54', 1, 10.00, 5),
+(9, 'Creme de Leite', 'UN', 6.00, '2025-11-16 19:31:19', 1, 6.00, 5),
+(10, 'Maracujá', 'UN', 2.50, '2025-11-16 19:32:24', 1, 20.00, 5),
+(11, 'Limão', 'UN', 1.50, '2025-11-16 19:32:48', 1, 20.00, 5),
+(12, 'Leite', 'LT', 4.00, '2025-11-16 19:33:11', 1, 8.00, 5),
+(13, 'Gelatina', 'UN', 3.00, '2025-11-16 19:34:07', 1, 10.00, 5),
+(14, 'Doce de Leite', 'UN', 13.00, '2025-11-16 19:34:26', 1, 5.00, 5),
+(15, 'Chocolate granulado', 'UN', 8.00, '2025-11-16 19:34:54', 1, 5.00, 5),
+(16, 'Amora', 'UN', 5.00, '2025-11-16 19:36:15', 1, 10.00, 5),
+(17, 'Corante alimentício', 'UN', 7.00, '2025-11-16 19:37:04', 1, 100.00, 5);
