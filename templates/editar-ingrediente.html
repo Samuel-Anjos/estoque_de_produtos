@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <title>Editar Ingrediente</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='editar-ingrediente.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='botao.css') }}">
 </head>
 <body>
+
+<a href="{{ url_for('home') }}" 
+    class="btn-voltar">Voltar
+</a>
 
 <div class="form-container">
     <h2> Editar Ingrediente</h2>

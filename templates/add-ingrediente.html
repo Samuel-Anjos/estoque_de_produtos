@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='add-ingrediente.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='botao.css') }}">
     <title>Adicionar Ingrediente</title>
 
 </head>
 <body>
+
+<a href="{{ url_for('home') }}" 
+    class="btn-voltar">Voltar
+</a>
     <div class="form-container">
         <h2>Cadastrar Novo Ingrediente</h2>
 
