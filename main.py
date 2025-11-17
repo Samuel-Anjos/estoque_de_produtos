@@ -2,6 +2,8 @@ from flask import Flask
 from dotenv import load_dotenv
 import os
 import pymysql
+import matplotlib
+matplotlib.use('Agg')
 
 load_dotenv()
 

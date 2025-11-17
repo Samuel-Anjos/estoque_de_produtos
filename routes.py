@@ -1,12 +1,17 @@
 from flask import render_template, request, redirect, url_for
 from main import app, get_connection
 from datetime import datetime
+import os
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 
 @app.route("/")
 def home():
     conn = get_connection()
     with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM produto ORDER BY ativo DESC, nome_produto")
+        cursor.execute("SELECT * FROM produto ORDER BY ativo DESC, id_produto")
         produtos = cursor.fetchall()
 
         cursor.execute("SELECT COUNT(*) AS total FROM produto")
@@ -22,13 +27,14 @@ def home():
         total_vendas = total["total"] if total else 0
 
         cursor.execute("""
-            SELECT SUM(quantidade * COALESCE(valor_unitario, 0)) AS receita
+            SELECT COALESCE(SUM(quantidade * COALESCE(valor_unitario, 0)), 0) AS receita
             FROM movimentos_produtos
             WHERE origem_movimento = 'venda'
         """)
         total = cursor.fetchone()
         receita_total = total["receita"] if total else 0
 
+        
     conn.close()
     return render_template(
         'index.html', produtos=produtos, 
@@ -44,6 +50,7 @@ def produtos():
         nome_produto = request.form.get("nomeProduto")
         quantidade = request.form.get("quantidade")
         valor_unitario = request.form.get("valorUnitario")
+        categoria = request.form.get("categoria")
 
         quantidade = float(quantidade)
         valor_unitario = float(valor_unitario)
@@ -52,8 +59,8 @@ def produtos():
 
         with conn.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO produto (nome_produto, valor_produto, quantidade, custo, data_cadastro) 
-                VALUES (%s, %s, %s, %s, %s)""", (nome_produto, valor_unitario, quantidade, valor_total, data_cadastro))
+                INSERT INTO produto (nome_produto, valor_produto, quantidade, custo, data_cadastro, categoria) 
+                VALUES (%s, %s, %s, %s, %s, %s)""", (nome_produto, valor_unitario, quantidade, valor_total, data_cadastro, categoria))
             conn.commit()
 
     return render_template("produto.html")
@@ -75,6 +82,7 @@ def update_produto():
     nome = request.form["nome_produto"]
     quantidade = float(request.form["quantidade"])
     valor_unitario = float(request.form["valor_unitario"])
+    categoria = request.form.get("categoria")
     custo = quantidade * valor_unitario
 
     conn = get_connection()
@@ -108,9 +116,10 @@ def update_produto():
             SET nome_produto = %s,
                 quantidade = %s,
                 valor_produto = %s,
-                custo = %s
+                custo = %s,
+                categoria = %s
             WHERE id_produto = %s
-        """, (nome, quantidade, valor_unitario, custo, id_produto))
+        """, (nome, quantidade, valor_unitario, custo, categoria, id_produto))
         conn.commit()
     conn.close()
 
@@ -280,7 +289,7 @@ def ingredientes():
         total_itens = len(ingredientes)
 
         cursor.execute("""
-            SELECT SUM(custo_unitario * estoque_atual) 
+            SELECT COALESCE(SUM(custo_unitario * estoque_atual), 0) AS total
             FROM producao
         """)    
         resultado = cursor.fetchone()
@@ -435,3 +444,140 @@ def saída_estoque(id_producao):
             conn.commit()
         conn.close()
     return redirect("/ingredientes")
+
+
+@app.route("/graficos")
+def graficos():
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        
+        # gráfico de evolução de estoque 
+        cursor.execute("""
+            SELECT 
+                DATE(data_movimento) AS dia,
+                SUM(
+                    CASE 
+                        WHEN origem_movimento IN ('venda', 'baixa') THEN -quantidade
+                        WHEN origem_movimento IN ('compra', 'ajuste_entrada') THEN quantidade
+                        ELSE 0
+                    END
+                ) AS quantidade_ajustada
+            FROM movimentos_produtos
+            GROUP BY DATE(data_movimento)
+            ORDER BY dia;
+
+        """)
+        evolucao = cursor.fetchall()
+
+        # gráfico de categorias
+        cursor.execute("""
+            SELECT categoria AS nome_categoria,
+            SUM(quantidade) AS total_categoria
+            FROM produto WHERE ativo = 1
+            GROUP BY categoria
+            ORDER BY total_categoria DESC
+        """)
+        categorias = cursor.fetchall()
+
+        # gráfico curva ABC 
+        cursor.execute("""
+            SELECT 
+                p.nome_produto AS nome,
+                (p.quantidade * p.valor_produto) AS custo_total
+            FROM produto p
+            WHERE p.ativo = 1;
+        """)
+        curva = cursor.fetchall()
+
+        # gráfico vendas
+        cursor.execute("""
+            SELECT 
+                p.nome_produto,
+                SUM(v.quantidade_vendida) AS total_vendido
+            FROM registro_vendas v
+            JOIN produto p ON p.id_produto = v.id_produto
+            WHERE p.ativo = 1
+            GROUP BY p.nome_produto
+            ORDER BY total_vendido DESC;
+        """)
+
+        vendas = cursor.fetchall()
+
+    pasta = "static/graficos"
+    os.makedirs(pasta, exist_ok=True)
+
+
+    if evolucao:
+        datas = []
+        valores_acumulados = []
+
+        saldo = 0  
+
+        for r in evolucao:
+            data = str(r["dia"])
+            delta = float(r["quantidade_ajustada"] or 0)
+
+            saldo += delta  # acumula o movimento
+
+            datas.append(data)
+            valores_acumulados.append(saldo)
+
+        plt.figure(figsize=(8,4))
+        plt.plot(datas, valores_acumulados, marker="o")
+        plt.xticks(rotation=45)
+        plt.title("Evolução Acumulada do Estoque")
+        plt.tight_layout()
+        plt.savefig(f"{pasta}/evolucao.png")
+        plt.close()
+
+
+    if categorias:
+        nomes = [l['nome_categoria'] for l in categorias]
+        valores = [float(l['total_categoria'] or 0) for l in categorias]
+
+        plt.figure(figsize=(8,4))
+        plt.bar(nomes, valores)
+        plt.title("Estoque por Categoria")
+        plt.tight_layout()
+        plt.savefig(f"{pasta}/categorias.png")
+        plt.close()
+
+    if curva:
+        dados = sorted(curva, key=lambda x: x["custo_total"], reverse=True)
+        nomes = [d["nome"] for d in dados]
+        custos = [float(d["custo_total"] or 0) for d in dados]
+
+        soma_total = sum(custos)
+        porcentagens = [(c / soma_total) * 100 for c in custos]
+        acumulado = []
+        soma = 0
+        for p in porcentagens:
+            soma += p
+            acumulado.append(soma)
+
+        plt.figure(figsize=(8,4))
+        plt.plot(nomes, acumulado, marker="o")
+        plt.xticks(rotation=45)
+        plt.title("Curva ABC — Custos de Estoque (%)")
+        plt.tight_layout()
+        plt.savefig(f"{pasta}/curva_abc.png")
+        plt.close()
+    
+    if vendas:
+        nomes = [linha.get("nome_produto", "Desconhecido") for linha in vendas]
+        totais = [float(linha.get("total_vendido") or 0) for linha in vendas]
+
+        plt.figure(figsize=(10,6))
+        plt.bar(nomes, totais)
+        plt.xticks(rotation=45, ha="right")
+        plt.title("Vendas por Produto")
+        plt.xlabel("Produto")
+        plt.ylabel("Quantidade Vendida")
+        plt.tight_layout()
+
+        plt.savefig("static/graficos/vendas.png")
+        plt.close()
+    else:
+        print("Nenhuma venda encontrada. Gráfico não gerado.")
+
+    return render_template("graficos.html")
